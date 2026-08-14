@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useMemo, useState, useTransition } from 'react'
 import { changeStatutAction, logoutAdmin } from '@/app/admin/actions'
 import { Button } from '@/components/ui/button'
-import type { Resultat, Statut } from '@/lib/firestore'
+import type { Filiere, Resultat, Statut } from '@/lib/firestore'
 import { formatPhone } from '@/lib/phone'
 
 const STATUT_OPTIONS: { value: Statut; label: string }[] = [
@@ -18,6 +18,11 @@ const STATUT_BADGE: Record<Statut, string> = {
   admis: 'bg-success/10 text-success border-success/30',
   non_admis: 'bg-destructive/10 text-destructive border-destructive/30',
   en_attente: 'bg-warning/10 text-warning border-warning/30',
+}
+
+const FILIERE_LABEL: Record<Filiere, string> = {
+  polytechnique: 'Polytechnique',
+  ecg: 'ECG',
 }
 
 export function AdminDashboard({ resultats }: { resultats: Resultat[] }) {
@@ -104,6 +109,7 @@ export function AdminDashboard({ resultats }: { resultats: Resultat[] }) {
               <tr className="border-b border-border text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
                 <th className="px-5 py-3">Candidat</th>
                 <th className="px-5 py-3">Numéro</th>
+                <th className="px-5 py-3">Filière</th>
                 <th className="px-5 py-3">Statut</th>
               </tr>
             </thead>
@@ -114,6 +120,7 @@ export function AdminDashboard({ resultats }: { resultats: Resultat[] }) {
                     {[r.prenom, r.nom].filter(Boolean).join(' ')}
                   </td>
                   <td className="px-5 py-3 text-muted-foreground">{formatPhone(r.numero)}</td>
+                  <td className="px-5 py-3 text-muted-foreground">{FILIERE_LABEL[r.filiere]}</td>
                   <td className="px-5 py-3">
                     <select
                       value={r.statut}
@@ -135,7 +142,7 @@ export function AdminDashboard({ resultats }: { resultats: Resultat[] }) {
 
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="px-5 py-8 text-center text-muted-foreground">
+                  <td colSpan={4} className="px-5 py-8 text-center text-muted-foreground">
                     Aucun candidat ne correspond à la recherche.
                   </td>
                 </tr>

@@ -7,12 +7,14 @@ export const FIREBASE_PROJECT_ID = 'resultats-test-classeprepa2026'
 export const RESULTS_COLLECTION = 'resultats_prepa_2026'
 
 export type Statut = 'admis' | 'non_admis' | 'en_attente'
+export type Filiere = 'polytechnique' | 'ecg'
 
 export type Resultat = {
   nom: string
   prenom: string
   numero: string
   statut: Statut
+  filiere: Filiere
   score?: number
   mention?: string
 }
@@ -92,6 +94,12 @@ function readStatut(data: Record<string, unknown>): Statut {
   return 'en_attente'
 }
 
+/** Les résultats créés avant l'ajout de ce champ sont traités comme "polytechnique". */
+function readFiliere(data: Record<string, unknown>): Filiere {
+  const raw = (readString(data, 'filiere') ?? '').toLowerCase()
+  return raw === 'ecg' ? 'ecg' : 'polytechnique'
+}
+
 /**
  * Recherche un unique résultat par égalité stricte sur `numero`, limité à
  * 1 document. Aucun listing complet de la collection n'est exposé.
@@ -112,6 +120,7 @@ export async function findResultatByNumero(numero: string): Promise<Resultat | n
     prenom: readString(data, 'prenom') ?? '',
     numero: readString(data, 'numero') ?? numero,
     statut: readStatut(data),
+    filiere: readFiliere(data),
     score: readNumber(data, 'score'),
     mention: readString(data, 'mention'),
   }
@@ -131,6 +140,7 @@ export async function listResultats(): Promise<Resultat[]> {
       prenom: readString(data, 'prenom') ?? '',
       numero: readString(data, 'numero') ?? '',
       statut: readStatut(data),
+      filiere: readFiliere(data),
       score: readNumber(data, 'score'),
       mention: readString(data, 'mention'),
     }
