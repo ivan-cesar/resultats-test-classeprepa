@@ -1,0 +1,29 @@
+rules_version = '2';
+
+// À copier dans Firebase Console > Firestore Database > Règles > Publier.
+//
+// IMPORTANT — ce que les règles Firestore peuvent et ne peuvent PAS faire :
+// `request.query` n'expose QUE `limit`, `offset` et `orderBy`. Il est
+// impossible d'inspecter les filtres `where` d'une requête depuis les règles.
+// On ne peut donc PAS écrire « autoriser la lecture seulement si la requête
+// filtre sur numero ». Toute règle qui autorise `list` autorise en pratique
+// un listing de la collection (l'attaquant retire simplement le filtre).
+//
+// Stratégie retenue : la lecture cliente est totalement fermée. L'application
+// lit Firestore côté serveur (Server Action, voir lib/firestore.ts), donc
+// aucune permission cliente n'est nécessaire.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /resultats_prepa_2026/{docId} {
+      // Aucun accès direct depuis un navigateur : ni lecture unitaire,
+      // ni requête, ni écriture. Seul un accès authentifié côté serveur
+      // (SDK Admin / compte de service) contourne ces règles.
+      allow read, write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
