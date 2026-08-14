@@ -21,7 +21,7 @@ const STATUT_BADGE: Record<Statut, string> = {
 }
 
 const FILIERE_LABEL: Record<Filiere, string> = {
-  polytechnique: 'Polytechnique',
+  polytechnique: 'MPSI/PCSI',
   ecg: 'ECG',
 }
 
