@@ -1,29 +1,14 @@
 'use client'
 
 import { LogOut, Search } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState, useTransition } from 'react'
 import { changeStatutAction, logoutAdmin } from '@/app/admin/actions'
 import { Button } from '@/components/ui/button'
-import type { Filiere, Resultat, Statut } from '@/lib/firestore'
+import type { Resultat, Statut } from '@/lib/firestore'
 import { formatPhone } from '@/lib/phone'
-
-const STATUT_OPTIONS: { value: Statut; label: string }[] = [
-  { value: 'admis', label: 'Admis' },
-  { value: 'non_admis', label: 'Non admis' },
-  { value: 'en_attente', label: 'En attente' },
-]
-
-const STATUT_BADGE: Record<Statut, string> = {
-  admis: 'bg-success/10 text-success border-success/30',
-  non_admis: 'bg-destructive/10 text-destructive border-destructive/30',
-  en_attente: 'bg-warning/10 text-warning border-warning/30',
-}
-
-const FILIERE_LABEL: Record<Filiere, string> = {
-  polytechnique: 'MPSI/PCSI',
-  ecg: 'ECG',
-}
+import { FILIERE_LABEL, STATUT_BADGE, STATUT_OPTIONS } from '@/lib/statut-labels'
 
 export function AdminDashboard({ resultats }: { resultats: Resultat[] }) {
   const router = useRouter()
@@ -76,16 +61,25 @@ export function AdminDashboard({ resultats }: { resultats: Resultat[] }) {
           </span>
         </div>
 
-        <form action={logoutAdmin}>
-          <Button
-            type="submit"
-            variant="outline"
-            className="border-border text-card-foreground"
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/sessions"
+            className="inline-flex h-10 items-center rounded-md border border-border bg-card px-4 text-sm font-medium text-card-foreground transition-colors hover:bg-muted"
           >
-            <LogOut className="size-4" aria-hidden="true" />
-            Déconnexion
-          </Button>
-        </form>
+            Sessions
+          </Link>
+
+          <form action={logoutAdmin}>
+            <Button
+              type="submit"
+              variant="outline"
+              className="border-border text-card-foreground"
+            >
+              <LogOut className="size-4" aria-hidden="true" />
+              Déconnexion
+            </Button>
+          </form>
+        </div>
       </div>
 
       <div className="relative flex items-center">

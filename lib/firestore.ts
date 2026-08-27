@@ -32,7 +32,7 @@ export class ConfigurationManquanteError extends Error {
  * Firestore. Les règles peuvent rester fermées (`allow read: if false`),
  * ce qui rend toute lecture depuis un navigateur impossible.
  */
-function getDb() {
+export function getDb() {
   const raw = process.env.FIREBASE_SERVICE_ACCOUNT_KEY
 
   if (!raw) {
@@ -69,7 +69,7 @@ function getDb() {
   return getFirestore(getApp())
 }
 
-function readString(data: Record<string, unknown>, key: string): string | undefined {
+export function readString(data: Record<string, unknown>, key: string): string | undefined {
   const raw = data[key]
   if (typeof raw === 'string' && raw.trim().length > 0) return raw.trim()
   return undefined
@@ -85,7 +85,7 @@ function readNumber(data: Record<string, unknown>, key: string): number | undefi
   return undefined
 }
 
-function readStatut(data: Record<string, unknown>): Statut {
+export function readStatut(data: Record<string, unknown>): Statut {
   const raw = (readString(data, 'statut') ?? '').toLowerCase().replace(/[\s-]+/g, '_')
   if (raw === 'admis' || raw === 'admise' || raw === 'admis_e') return 'admis'
   if (['non_admis', 'non_admise', 'refuse', 'refusé', 'refusée'].includes(raw)) {
@@ -95,7 +95,7 @@ function readStatut(data: Record<string, unknown>): Statut {
 }
 
 /** Les résultats créés avant l'ajout de ce champ sont traités comme "polytechnique". */
-function readFiliere(data: Record<string, unknown>): Filiere {
+export function readFiliere(data: Record<string, unknown>): Filiere {
   const raw = (readString(data, 'filiere') ?? '').toLowerCase()
   return raw === 'ecg' ? 'ecg' : 'polytechnique'
 }

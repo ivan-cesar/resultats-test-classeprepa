@@ -22,6 +22,14 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    match /sessions/{docId} {
+      allow read, write: if false;
+    }
+
+    match /session_candidats/{docId} {
+      allow read, write: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

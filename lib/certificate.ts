@@ -33,7 +33,37 @@ const TEMPLATES: Record<Filiere, { file: string; nameX: number; nameBaselineY: n
   },
 }
 
-export async function generateAdmissionCertificate(resultat: Resultat): Promise<Uint8Array> {
+/**
+ * La ligne « Abidjan, le [date] » est, comme le nom avant modification,
+ * gravée dans le PDF source. Pour la rendre dynamique on masque la zone
+ * d'origine (fond blanc, relevé sur le template) puis on réécrit la date
+ * au même point d'ancrage. Couleur et position relevées sur chaque
+ * template avant modification ; la police "Medium" d'origine n'étant pas
+ * embarquée dans le projet, on réutilise la police "Black" déjà chargée
+ * pour le nom (rendu légèrement plus gras que l'original, écart mineur).
+ */
+const DATE_TEMPLATES: Record<
+  Filiere,
+  { dateX: number; dateBaselineY: number; color: readonly [number, number, number]; coverRect: { x: number; y: number; width: number; height: number } }
+> = {
+  polytechnique: {
+    dateX: 47.8,
+    dateBaselineY: 753.74,
+    color: [29 / 255, 29 / 255, 27 / 255],
+    coverRect: { x: 40, y: 743.89, width: 220, height: 24 },
+  },
+  ecg: {
+    dateX: 47.8,
+    dateBaselineY: 764.74,
+    color: [81 / 255, 81 / 255, 81 / 255],
+    coverRect: { x: 40, y: 757.89, width: 220, height: 20 },
+  },
+}
+
+export async function generateAdmissionCertificate(
+  resultat: Resultat,
+  dateLabel?: string,
+): Promise<Uint8Array> {
   const template = TEMPLATES[resultat.filiere]
 
   const [templateBytes, fontBytes] = await Promise.all([
@@ -61,6 +91,26 @@ export async function generateAdmissionCertificate(resultat: Resultat): Promise<
     font,
     color: NAME_COLOR,
   })
+
+  if (dateLabel) {
+    const dateTemplate = DATE_TEMPLATES[resultat.filiere]
+
+    page.drawRectangle({
+      x: dateTemplate.coverRect.x,
+      y: dateTemplate.coverRect.y,
+      width: dateTemplate.coverRect.width,
+      height: dateTemplate.coverRect.height,
+      color: rgb(1, 1, 1),
+    })
+
+    page.drawText(`Abidjan, le ${dateLabel}`, {
+      x: dateTemplate.dateX,
+      y: dateTemplate.dateBaselineY,
+      size: 10,
+      font,
+      color: rgb(...dateTemplate.color),
+    })
+  }
 
   return pdfDoc.save()
 }

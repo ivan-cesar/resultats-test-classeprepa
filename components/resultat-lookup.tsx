@@ -4,8 +4,8 @@ import { AlertTriangle, Loader2, Phone, SearchX } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { lookupResultat, type LookupState } from '@/app/actions'
-import { ResultCard } from '@/components/result-card'
 import { Button } from '@/components/ui/button'
+import { SessionResultGroup } from '@/components/session-result-group'
 import { digitCount, formatPhone } from '@/lib/phone'
 
 export function ResultatLookup() {
@@ -20,14 +20,18 @@ export function ResultatLookup() {
     startTransition(async () => {
       const result = await lookupResultat(rawNumero)
 
-      if (result.status === 'found' && result.resultat.statut === 'admis') {
-        router.push(`/resultat/admis?numero=${encodeURIComponent(result.numero)}`)
-        return
-      }
+      if (result.status === 'found' && result.results.length === 1 && result.results[0].source === 'legacy') {
+        const { statut } = result.results[0].resultat
 
-      if (result.status === 'found' && result.resultat.statut === 'non_admis') {
-        router.push(`/resultat/non-admis?numero=${encodeURIComponent(result.numero)}`)
-        return
+        if (statut === 'admis') {
+          router.push(`/resultat/admis?numero=${encodeURIComponent(result.numero)}`)
+          return
+        }
+
+        if (statut === 'non_admis') {
+          router.push(`/resultat/non-admis?numero=${encodeURIComponent(result.numero)}`)
+          return
+        }
       }
 
       setState(result)
@@ -103,7 +107,13 @@ export function ResultatLookup() {
         </div>
       )}
 
-      {!isPending && state?.status === 'found' && <ResultCard resultat={state.resultat} />}
+      {!isPending && state?.status === 'found' && (
+        <div className="flex flex-col gap-6">
+          {state.results.map((result) => (
+            <SessionResultGroup key={`${result.source}-${result.sessionLabel}`} {...result} />
+          ))}
+        </div>
+      )}
 
       {!isPending && state?.status === 'not_found' && (
         <div
